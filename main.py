@@ -13,7 +13,7 @@ import os
 import sys
 
 
-PLOT_PAUSE_TIME = 1.5
+PLOT_PAUSE_TIME = 1
 x = symbols('x')
 INFINITY = 1/x.subs(x, 0)
 USER = platform.system()
@@ -299,12 +299,12 @@ def main():
             line2[0].append(demand_aggregate['x'][index_d])
             line2[0].append(demand_aggregate['y'][index_d])
 
-            line2[0].append(demand_aggregate['x'][index_d+1])
-            line2[0].append(demand_aggregate['y'][index_d+1])
+            line2[1].append(demand_aggregate['x'][index_d+1])
+            line2[1].append(demand_aggregate['y'][index_d+1])
 
-            if intersect_checker.check_for_intersection(line1, line2):
-                eq_x, eq_y = poi.intersection_coordinates(line1, line2)
-                if eq_x != 'no':
+            eq_x, eq_y = poi.intersection_coordinates(line1, line2)
+            if eq_x != 'no':
+                if intersect_checker.check_for_intersection(line1, line2, eq_x, eq_y):
                     market_equillibrium_point.append(eq_x)
                     market_equillibrium_point.append(eq_y)
         if market_equillibrium_point:
@@ -312,6 +312,21 @@ def main():
 
     market_clearing_quantity = market_equillibrium_point[0]
     market_clearing_price = market_equillibrium_point[1]
+
+    equillibrium_plotter = {'x': [], 'y': []}
+
+    equillibrium_plotter['x'].append(0)
+    equillibrium_plotter['y'].append(market_clearing_price)
+
+    equillibrium_plotter['x'].append(market_clearing_quantity)
+    equillibrium_plotter['y'].append(market_clearing_price)
+
+    equillibrium_plotter['x'].append(market_clearing_quantity)
+    equillibrium_plotter['y'].append(0)
+
+    plt.plot(equillibrium_plotter['x'], equillibrium_plotter['y'], linestyle='--', label='Market Equillibrium')
+    plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
+    plt.pause(PLOT_PAUSE_TIME)
     
     # Continue from here
     # TODO
