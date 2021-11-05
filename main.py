@@ -420,17 +420,24 @@ def main():
     #              weight='bold'
     #             )
 
-    print('\n\nAll Market Cleared Values')
+    print('\n\nAll Market Cleared Values and Costs')
     print('Supply:')
     for i in range(plants):
+        try:
+            cost = fuel_cost_funcs[i].subs(x, cleared_values['gen']['x'][i])
+        except AttributeError:
+            cost = fuel_cost_funcs[i]
         print(f"    P{i+1} = {cleared_values['gen']['x'][i]:.2f} MW")
-    print('Demand')
+        print(f"    C{i+1} = {cost:.2f} $\n")
+    print('Demand:')
     for i in range(loads):
-        print(f"    D{i+1} = {cleared_values['dem']['x'][i]:.2f} MW")
+        try:
+            cost = demand_cost_funcs[i].subs(x, cleared_values['dem']['x'][i])
+        except AttributeError:
+            cost = fuel_cost_funcs[i]
+        print(f"    P{i+1} = {cleared_values['dem']['x'][i]:.2f} MW")
+        print(f"    D{i+1} = {cost:.2f} $\n")
 
-    # Continue from here
-    # TODO
-    # Find the costs correspoding to all the cleared market quantities
     plt.xlabel('Power (MW)')
     plt.ylabel('Incremental Cost ($/MWh)')
     plt.show()
