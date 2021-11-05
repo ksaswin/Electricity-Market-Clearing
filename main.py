@@ -4,6 +4,9 @@ from sympy import diff
 import matplotlib.pyplot as plt
 import math
 
+import lines_intersection_check as intersect_checker
+import point_of_intersection as poi
+
 import subprocess
 import platform
 import os
@@ -267,10 +270,51 @@ def main():
     plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
     plt.pause(PLOT_PAUSE_TIME)
 
+    g_agg_len = len(generator_aggregate['x'])
+    g_agg_len -= 1
+    d_agg_len = len(demand_aggregate['x'])
+    d_agg_len -= 1
+    # Reduced the length by 1. The following for loop takes elements
+    # in the indices i and i+1. So, the loop only needs to iterated
+    # from 0 to max_index-1
+    line1 = []
+    line2 = []
+    market_equillibrium_point = []
+    for index_g in range(g_agg_len):
+        line1.clear()
+        line1.append([])
+        line1.append([])
+
+        line1[0].append(generator_aggregate['x'][index_g])
+        line1[0].append(generator_aggregate['y'][index_g])
+
+        line1[1].append(generator_aggregate['x'][index_g+1])
+        line1[1].append(generator_aggregate['y'][index_g+1])
+
+        for index_d in range(d_agg_len):
+            line2.clear()
+            line2.append([])
+            line2.append([])
+
+            line2[0].append(demand_aggregate['x'][index_d])
+            line2[0].append(demand_aggregate['y'][index_d])
+
+            line2[0].append(demand_aggregate['x'][index_d+1])
+            line2[0].append(demand_aggregate['y'][index_d+1])
+
+            if intersect_checker.check_for_intersection(line1, line2):
+                eq_x, eq_y = poi.intersection_coordinates(line1, line2)
+                if eq_x != 'no':
+                    market_equillibrium_point.append(eq_x)
+                    market_equillibrium_point.append(eq_y)
+        if market_equillibrium_point:
+            break
+
+    market_clearing_quantity = market_equillibrium_point[0]
+    market_clearing_price = market_equillibrium_point[1]
+    
     # Continue from here
     # TODO
-    # Find the eqillibrium point
-    # Use that for MCP and MCQ
     # Also find all the power of each plant and load corresponding to MCP
     # Finally, find the cost for each
 
