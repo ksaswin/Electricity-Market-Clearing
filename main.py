@@ -82,13 +82,13 @@ def main():
     for i in range(plants):
         plant = f'P{i+1}'
         print(f"\n    C{i+1} = {str(fuel_cost_funcs[i]).replace('x', plant)}", end='  ;  ')
-        print(f"{PLimits[i][0]} <= {plant} <= {PLimits[i][1]}")
+        print(f"{PLimits[i][0]:.1f} <= {plant} <= {PLimits[i][1]:.1f}")
         print(f"    dC{i+1}/d{plant} = {str(incr_fuel_cost_funcs[i]).replace('x', plant)}")
     print('\nLoad Cost Functions:')
     for i in range(loads):
         load = f'L{i+1}'
         print(f"\n    D{i+1} = {str(demand_cost_funcs[i]).replace('x', load)}", end='  ;  ')
-        print(f"{DLimits[i][0]} <= {plant} <= {DLimits[i][1]}")
+        print(f"{DLimits[i][0]:.1f} <= {plant} <= {DLimits[i][1]:.1f}")
         print(f"    dD{i+1}/d{load} = {str(incr_load_cost_funcs[i]).replace('x', load)}")
 
     x_values = {'fuel': [], 'demand': []}
@@ -273,6 +273,7 @@ def main():
     # Use that for MCP and MCQ
     # Also find all the power of each plant and load corresponding to MCP
     # Finally, find the cost for each
+
     plt.xlabel('Power (MW)')
     plt.ylabel('Incremental Cost ($/MWh)')
     plt.show()
