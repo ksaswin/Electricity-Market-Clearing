@@ -6,6 +6,7 @@ import math
 
 import lines_intersection_check as intersect_checker
 import point_of_intersection as poi
+import show_all_points as print_points
 
 import subprocess
 import platform
@@ -64,7 +65,7 @@ def main():
     DLimits = []
     incr_load_cost_funcs = []          # Incremental load cost functions
 
-    loads = int(input('Enter the number of loads: '))
+    loads = int(input('\nEnter the number of loads: '))
 
     print('\nEnter the Load Cost Functions below.')
     print('Only use x as the variable')
@@ -327,7 +328,25 @@ def main():
     plt.plot(equillibrium_plotter['x'], equillibrium_plotter['y'], linestyle='--', label='Market Equillibrium')
     plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
     plt.pause(PLOT_PAUSE_TIME)
+
+    plt.text(market_clearing_quantity, market_clearing_price+0.5,
+             f'({market_clearing_quantity:.1f}, {market_clearing_price:.1f})',
+             weight='bold'
+            )
     
+    print('\n\nAll Plotted Points')
+    for i in range(plants):
+        print(f'\nG{i+1}')
+        print_points.show_marked_points(x_values['fuel'][i], y_values['fuel'][i])
+    for i in range(loads):
+        print(f'\nD{i+1}')
+        print_points.show_marked_points(x_values['demand'][i], y_values['demand'][i])
+    g_agg_len += 1
+    print('\nGenerator Aggregate')
+    print_points.show_marked_points(generator_aggregate['x'], generator_aggregate['y'])
+    d_agg_len += 1
+    print('\nDemand Aggregate')
+    print_points.show_marked_points(demand_aggregate['x'], demand_aggregate['y'])
     # Continue from here
     # TODO
     # Also find all the power of each plant and load corresponding to MCP
