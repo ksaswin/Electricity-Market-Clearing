@@ -217,8 +217,8 @@ def main():
         
         generator_aggregate['x'].append(x_aggregator)
         generator_aggregate['y'].append(breaking_point)
-        
 
+    
     plt.plot(generator_aggregate['x'], generator_aggregate['y'], linestyle='-', label='Generator aggregate')
     plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
     plt.pause(PLOT_PAUSE_TIME)
@@ -329,6 +329,7 @@ def main():
     plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
     plt.pause(PLOT_PAUSE_TIME)
 
+    # Show the Market Equillibrium Point on the figure
     plt.text(market_clearing_quantity, market_clearing_price+0.5,
              f'({market_clearing_quantity:.1f}, {market_clearing_price:.1f})',
              weight='bold'
@@ -347,11 +348,89 @@ def main():
     d_agg_len += 1
     print('\nDemand Aggregate')
     print_points.show_marked_points(demand_aggregate['x'], demand_aggregate['y'])
+
+    cleared_values = {'gen': {'x': [], 'y': []},
+                      'dem': {'x': [], 'y': []}
+                     }
+    for i in range(plants):
+        l = len(y_values['fuel'][i])
+        for index, cost in enumerate(y_values['fuel'][i]):
+            if (index + 1) < l:
+                if y_values['fuel'][i][index] <= market_clearing_price <= y_values['fuel'][i][index+1]:
+                    x_intercept = find_line_intercept(x_values['fuel'][i][index],
+                                                      x_values['fuel'][i][index+1],
+                                                      y_values['fuel'][i][index],
+                                                      y_values['fuel'][i][index+1],
+                                                      market_clearing_price
+                                                     )
+                    if not math.isnan(x_intercept):
+                        cleared_values['gen']['x'].append(x_intercept)
+                        cleared_values['gen']['y'].append(market_clearing_price)
+                    break
+            else:
+                if y_values['fuel'][i][index-1] <= market_clearing_price <= y_values['fuel'][i][index]:
+                    x_intercept = find_line_intercept(x_values['fuel'][i][index-1],
+                                                      x_values['fuel'][i][index],
+                                                      y_values['fuel'][i][index-1],
+                                                      y_values['fuel'][i][index],
+                                                      market_clearing_price
+                                                     )
+                    if not math.isnan(x_intercept):
+                        cleared_values['gen']['x'].append(x_intercept)
+                        cleared_values['gen']['y'].append(market_clearing_price)
+                    break
+    
+    for i in range(loads):
+        l = len(y_values['demand'][i])
+        for index, cost in enumerate(y_values['demand'][i]):
+            if (index + 1) < l:
+                if y_values['demand'][i][index+1] <= market_clearing_price <= y_values['demand'][i][index]:
+                    x_intercept = find_line_intercept(x_values['demand'][i][index],
+                                                      x_values['demand'][i][index+1],
+                                                      y_values['demand'][i][index],
+                                                      y_values['demand'][i][index+1],
+                                                      market_clearing_price
+                                                     )
+                    if not math.isnan(x_intercept):
+                        cleared_values['dem']['x'].append(x_intercept)
+                        cleared_values['dem']['y'].append(market_clearing_price)
+                    break
+            else:
+                if y_values['demand'][i][index] <= market_clearing_price <= y_values['demand'][i][index-1]:
+                    x_intercept = find_line_intercept(x_values['demand'][i][index-1],
+                                                      x_values['demand'][i][index],
+                                                      y_values['demand'][i][index-1],
+                                                      y_values['demand'][i][index],
+                                                      market_clearing_price
+                                                     )
+                    if not math.isnan(x_intercept):
+                        cleared_values['dem']['x'].append(x_intercept)
+                        cleared_values['dem']['y'].append(market_clearing_price)
+                    break
+
+    # for i in range(plants):
+    #     plt.text(cleared_values['gen']['x'][i], cleared_values['gen']['y'][i]+0.5,
+    #              f"({cleared_values['gen']['x'][i]:.1f}, {cleared_values['gen']['y'][i]:.1f})",
+    #              weight='bold'
+    #             )
+    
+    # for i in range(loads):
+    #     plt.text(cleared_values['dem']['x'][i], cleared_values['dem']['y'][i]+0.5,
+    #              f"({cleared_values['dem']['x'][i]:.1f}, {cleared_values['dem']['y'][i]:.1f})",
+    #              weight='bold'
+    #             )
+
+    print('\n\nAll Market Cleared Values')
+    print('Supply:')
+    for i in range(plants):
+        print(f"    P{i+1} = {cleared_values['gen']['x'][i]:.2f} MW")
+    print('Demand')
+    for i in range(loads):
+        print(f"    D{i+1} = {cleared_values['dem']['x'][i]:.2f} MW")
+
     # Continue from here
     # TODO
-    # Also find all the power of each plant and load corresponding to MCP
-    # Finally, find the cost for each
-
+    # Find the costs correspoding to all the cleared market quantities
     plt.xlabel('Power (MW)')
     plt.ylabel('Incremental Cost ($/MWh)')
     plt.show()
