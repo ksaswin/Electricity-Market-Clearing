@@ -1,12 +1,11 @@
 from sympy import symbols
-from sympy.parsing.sympy_parser import parse_expr
-from sympy import diff
 import matplotlib.pyplot as plt
 import math
 
 import lines_intersection_check as intersect_checker
 import point_of_intersection as poi
 import show_all_points as print_points
+import input_fetcher as fetcher
 
 import subprocess
 import platform
@@ -39,125 +38,140 @@ def find_line_intercept(x1, x2, y1, y2, y):
 
 
 def main():
-    plants = int(input('Enter the number of plants: '))
+    valid_choice = 0
+    func_or_points = '1'
+    print('Would you like to give the inputs as functions or as x & y coordinates?')
+    print('  (1)  Fuel cost functions\n  (2)  Data points\nPlease choose between 1 & 2.')
+    while (not valid_choice):
+        func_or_points = input('Enter your choice here: ')
 
-    fuel_cost_funcs = []
-    PLimits = []
-    incr_fuel_cost_funcs = []           # Incremental fuel cost functions
-    P_max_value = 0
+        if func_or_points == '1' or func_or_points == '2':
+            valid_choice = 1
+        else:
+            print(f'Sorry, {func_or_points} is not a valid choice.\nPlease enter either 1 or 2!\nTry again.\n\n')
 
-    print('\nEnter the Generator Cost Functions below.')
-    print('Only use x as the variable!')
-    print('Please enter all power limits in MW')
-    for i in range(plants):
-        c = input(f'\n    C{i+1} = ')
-        c = parse_expr(c)
-        fuel_cost_funcs.append(c)
-        incr_fuel_cost_funcs.append(diff(c))
-        print(f'  Enter Pmin & Pmax for P{i+1}')
-        Pmin = float(input('    Pmin = '))
-        Pmax = float(input('    Pmax = '))
-        PLimits.append([Pmin, Pmax])
-        if Pmax > P_max_value:
-            P_max_value = Pmax
-
-    demand_cost_funcs = []
-    DLimits = []
-    incr_load_cost_funcs = []          # Incremental load cost functions
-
-    loads = int(input('\nEnter the number of loads: '))
-
-    print('\nEnter the Load Cost Functions below.')
-    print('Only use x as the variable')
-    print('Please enter all power limits in MW')
-    for i in range(loads):
-        d = input(f'\n    D{i+1} = ')
-        d = parse_expr(d)
-        demand_cost_funcs.append(d)
-        incr_load_cost_funcs.append(diff(d))
-        print(f'  Enter the Lmin & Lmax for L{i+1}')
-        Lmin = float(input('    Lmin = '))
-        Lmax = float(input('    Lmax = '))
-        DLimits.append([Lmin, Lmax])
-    
     clr_screen()
-    # print('Inputs provided')                  # Printing the inputs
-    print('\nGenerator Cost Functions:')
-    for i in range(plants):
-        plant = f'P{i+1}'
-        print(f"\n    C{i+1} = {str(fuel_cost_funcs[i]).replace('x', plant)}", end='  ;  ')
-        print(f"{PLimits[i][0]:.1f} <= {plant} <= {PLimits[i][1]:.1f}")
-        print(f"    dC{i+1}/d{plant} = {str(incr_fuel_cost_funcs[i]).replace('x', plant)}")
-    print('\nLoad Cost Functions:')
-    for i in range(loads):
-        load = f'L{i+1}'
-        print(f"\n    D{i+1} = {str(demand_cost_funcs[i]).replace('x', load)}", end='  ;  ')
-        print(f"{DLimits[i][0]:.1f} <= {plant} <= {DLimits[i][1]:.1f}")
-        print(f"    dD{i+1}/d{load} = {str(incr_load_cost_funcs[i]).replace('x', load)}")
-
     x_values = {'fuel': [], 'demand': []}
     y_values = {'fuel': [], 'demand': []}
     max_cost = 0
 
-    # Finding data points for plotting the Incremental Fuel Costs for each plant
-    for i in range(plants):
-        x_values['fuel'].append([])
-        y_values['fuel'].append([])
+    if func_or_points == '1':
+        plants = int(input('Enter the number of plants: '))
 
-        x_values['fuel'][i].append(PLimits[i][0])          # For initial x value, y is zero
-        x_values['fuel'][i].append(PLimits[i][0])
-        x_values['fuel'][i].append(PLimits[i][1])
-        x_values['fuel'][i].append(PLimits[i][1])          # For final x value, y is MAX $/MWh
+        fuel_cost_funcs, PLimits, incr_fuel_cost_funcs = fetcher.cost_functions_inputs(plants, 'g')
 
-        y_values['fuel'][i].append(0)
+        loads = int(input('\nEnter the number of loads: '))
 
-        try:
-            cost = incr_fuel_cost_funcs[i].subs(x, x_values['fuel'][i][0])
-        except AttributeError:
-            cost = incr_fuel_cost_funcs[i]
-        check_inf(cost)
-        if cost > max_cost:
-            max_cost = cost
-        y_values['fuel'][i].append(cost)
-
-        try:
-            cost = incr_fuel_cost_funcs[i].subs(x, x_values['fuel'][i][2])
-        except AttributeError:
-            cost = incr_fuel_cost_funcs[i]
-        check_inf(cost)
-        if cost > max_cost:
-            max_cost = cost
-        y_values['fuel'][i].append(cost)
-    
-    # Finding data points for plotting the Incremental Load costs for each load
-    for i in range(loads):
-        x_values['demand'].append([])
-        y_values['demand'].append([])
+        demand_cost_funcs, DLimits, incr_load_cost_funcs = fetcher.cost_functions_inputs(loads, 'd')
         
-        x_values['demand'][i].append(DLimits[i][0])
-        x_values['demand'][i].append(DLimits[i][1])
-        x_values['demand'][i].append(DLimits[i][1])
+        clr_screen()
+        # print('Inputs provided')                  # Printing the inputs
+        print('\nGenerator Cost Functions:')
+        for i in range(plants):
+            plant = f'P{i+1}'
+            print(f"\n    C{i+1} = {str(fuel_cost_funcs[i]).replace('x', plant)}", end='  ;  ')
+            print(f"{PLimits[i][0]:.1f} <= {plant} <= {PLimits[i][1]:.1f}")
+            print(f"    dC{i+1}/d{plant} = {str(incr_fuel_cost_funcs[i]).replace('x', plant)}")
+        print('\nLoad Cost Functions:')
+        for i in range(loads):
+            load = f'L{i+1}'
+            print(f"\n    D{i+1} = {str(demand_cost_funcs[i]).replace('x', load)}", end='  ;  ')
+            print(f"{DLimits[i][0]:.1f} <= {plant} <= {DLimits[i][1]:.1f}")
+            print(f"    dD{i+1}/d{load} = {str(incr_load_cost_funcs[i]).replace('x', load)}")
 
-        try:
-            cost = incr_load_cost_funcs[i].subs(x, x_values['demand'][i][0])
-        except AttributeError:
-            cost = incr_load_cost_funcs[i]
-        check_inf(cost)
-        if cost > max_cost:
-            max_cost = cost
-        y_values['demand'][i].append(cost)
 
-        try:
-            cost = incr_load_cost_funcs[i].subs(x, x_values['demand'][i][1])
-        except AttributeError:
-            cost = incr_load_cost_funcs[i]
-        check_inf(cost)
-        if cost > max_cost:
-            max_cost = cost
-        y_values['demand'][i].append(cost)
+        # Finding data points for plotting the Incremental Fuel Costs for each plant
+        for i in range(plants):
+            x_values['fuel'].append([])
+            y_values['fuel'].append([])
 
-        y_values['demand'][i].append(0)
-    
+            x_values['fuel'][i].append(PLimits[i][0])          # For initial x value, y is zero
+            x_values['fuel'][i].append(PLimits[i][0])
+            x_values['fuel'][i].append(PLimits[i][1])
+            x_values['fuel'][i].append(PLimits[i][1])          # For final x value, y is MAX $/MWh
+
+            y_values['fuel'][i].append(0)
+
+            try:
+                cost = incr_fuel_cost_funcs[i].subs(x, x_values['fuel'][i][0])
+            except AttributeError:
+                cost = incr_fuel_cost_funcs[i]
+            check_inf(cost)
+            if cost > max_cost:
+                max_cost = cost
+            y_values['fuel'][i].append(cost)
+
+            try:
+                cost = incr_fuel_cost_funcs[i].subs(x, x_values['fuel'][i][2])
+            except AttributeError:
+                cost = incr_fuel_cost_funcs[i]
+            check_inf(cost)
+            if cost > max_cost:
+                max_cost = cost
+            y_values['fuel'][i].append(cost)
+        
+        # Finding data points for plotting the Incremental Load costs for each load
+        for i in range(loads):
+            x_values['demand'].append([])
+            y_values['demand'].append([])
+            
+            x_values['demand'][i].append(DLimits[i][0])
+            x_values['demand'][i].append(DLimits[i][1])
+            x_values['demand'][i].append(DLimits[i][1])
+
+            try:
+                cost = incr_load_cost_funcs[i].subs(x, x_values['demand'][i][0])
+            except AttributeError:
+                cost = incr_load_cost_funcs[i]
+            check_inf(cost)
+            if cost > max_cost:
+                max_cost = cost
+            y_values['demand'][i].append(cost)
+
+            try:
+                cost = incr_load_cost_funcs[i].subs(x, x_values['demand'][i][1])
+            except AttributeError:
+                cost = incr_load_cost_funcs[i]
+            check_inf(cost)
+            if cost > max_cost:
+                max_cost = cost
+            y_values['demand'][i].append(cost)
+
+            y_values['demand'][i].append(0)
+    else:
+        plants = int(input('Enter the number of plants: '))
+        for i in range(plants):
+            print(f'\nGeneration Company {i+1}')
+            
+            offers = int(input(f'Enter number of offers in GenCo{i+1}: '))
+            price_list, power_list, max_cost = fetcher.plot_points_inputs(offers, 'g', max_cost)
+            
+            if 0 not in price_list:
+                price_list.insert(0, 0)
+                power_list.insert(0, power_list[0])
+            
+            power_list.append(power_list[-1])       # For the final max_cost value
+
+            x_values['fuel'].append(power_list)
+            y_values['fuel'].append(price_list)
+        
+        loads = int(input('\nEnter the number of loads: '))
+        for i in range(loads):
+            print(f'\nDistribution Company{i+1}')
+
+            bids = int(input(f'Enter number of bids in DisCo{i+1}: '))
+            price_list, power_list, max_cost = fetcher.plot_points_inputs(bids, 'd', max_cost)
+
+            if 0 not in power_list:
+                price_list.insert(0, max(price_list))
+                power_list.insert(0, 0)
+
+            x_values['demand'].append(power_list)
+            y_values['demand'].append(price_list)
+        
+        clr_screen()
+        
+
     plot_manager = plt.get_current_fig_manager()
     plot_manager.resize(*plot_manager.window.maxsize())
 
@@ -174,6 +188,15 @@ def main():
         plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
         plt.pause(PLOT_PAUSE_TIME)
     
+    if func_or_points == '2':
+        print('All input values:')
+        for i in range(plants):
+            print(f'GenCo{i+1}')
+            print_points.show_marked_points(x_values['fuel'][i], y_values['fuel'][i], ['Supply (MW)', 'Prices ($/MWh)'])
+        
+        for i in range(loads):
+            print(f'DisCo{i+1}')
+            print_points.show_marked_points(x_values['demand'][i], y_values['demand'][i], ['Demand (MW)', 'Prices ($/MWh)'])
 
     # Aggregate values
     generator_aggregate = {'x': [], 'y': []}
@@ -423,20 +446,23 @@ def main():
     print('\n\nAll Market Cleared Values and Costs')
     print('Supply:')
     for i in range(plants):
-        try:
-            cost = fuel_cost_funcs[i].subs(x, cleared_values['gen']['x'][i])
-        except AttributeError:
-            cost = fuel_cost_funcs[i]
+        if func_or_points == '1':
+            try:
+                cost = fuel_cost_funcs[i].subs(x, cleared_values['gen']['x'][i])
+            except AttributeError:
+                cost = fuel_cost_funcs[i]
+            print(f"    C{i+1} = {cost:.2f} $/h\n")
         print(f"    P{i+1} = {cleared_values['gen']['x'][i]:.2f} MW")
-        print(f"    C{i+1} = {cost:.2f} $\n")
+
     print('Demand:')
     for i in range(loads):
-        try:
-            cost = demand_cost_funcs[i].subs(x, cleared_values['dem']['x'][i])
-        except AttributeError:
-            cost = fuel_cost_funcs[i]
+        if func_or_points == '1':
+            try:
+                cost = demand_cost_funcs[i].subs(x, cleared_values['dem']['x'][i])
+            except AttributeError:
+                cost = fuel_cost_funcs[i]
+            print(f"    D{i+1} = {cost:.2f} $/h\n")
         print(f"    P{i+1} = {cleared_values['dem']['x'][i]:.2f} MW")
-        print(f"    D{i+1} = {cost:.2f} $\n")
 
     plt.xlabel('Power (MW)')
     plt.ylabel('Incremental Cost ($/MWh)')
