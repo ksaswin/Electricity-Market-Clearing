@@ -37,6 +37,12 @@ def find_line_intercept(x1, x2, y1, y2, y):
     return x
 
 
+def plotter(x_points, y_points, linestyle, label):
+    plt.plot(x_points, y_points, linestyle=linestyle, label=label)
+    plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
+    plt.pause(PLOT_PAUSE_TIME)
+
+
 def main():
     valid_choice = 0
     func_or_points = '1'
@@ -178,15 +184,17 @@ def main():
     # Plotting each Incremental Fuel Cost
     for i in range(plants):
         y_values['fuel'][i].append(max_cost)
-        plt.plot(x_values['fuel'][i], y_values['fuel'][i], linestyle='-.', label=f'Generator{i+1}')
-        plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-        plt.pause(PLOT_PAUSE_TIME)
+        plotter(x_values['fuel'][i], y_values['fuel'][i], '-.', f'Generator{i+1}')
+        # plt.plot(x_values['fuel'][i], y_values['fuel'][i], linestyle='-.', label=f'Generator{i+1}')
+        # plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
+        # plt.pause(PLOT_PAUSE_TIME)
     
     # Plotting each Incremental Load Cost
     for i in range(loads):
-        plt.plot(x_values['demand'][i], y_values['demand'][i], linestyle='-.', label=f'Demand{i+1}')
-        plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-        plt.pause(PLOT_PAUSE_TIME)
+        plotter(x_values['demand'][i], y_values['demand'][i], '-.', f'Demand{i+1}')
+        # plt.plot(x_values['demand'][i], y_values['demand'][i], linestyle='-.', label=f'Demand{i+1}')
+        # plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
+        # plt.pause(PLOT_PAUSE_TIME)
     
     if func_or_points == '2':
         print('All input values:')
@@ -242,9 +250,10 @@ def main():
         generator_aggregate['y'].append(breaking_point)
 
     
-    plt.plot(generator_aggregate['x'], generator_aggregate['y'], linestyle='-', label='Generator aggregate')
-    plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-    plt.pause(PLOT_PAUSE_TIME)
+    plotter(generator_aggregate['x'], generator_aggregate['y'], '-', 'Generator aggregate')
+    # plt.plot(generator_aggregate['x'], generator_aggregate['y'], linestyle='-', label='Generator aggregate')
+    # plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
+    # plt.pause(PLOT_PAUSE_TIME)
     
     # The demand aggregate curve
     breaking_points.clear()
@@ -290,9 +299,10 @@ def main():
         demand_aggregate['y'].insert(0, top_cost)
         demand_aggregate['x'].insert(0, 0)
 
-    plt.plot(demand_aggregate['x'], demand_aggregate['y'], linestyle='-', label='Demand aggregate')
-    plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-    plt.pause(PLOT_PAUSE_TIME)
+    plotter(demand_aggregate['x'], demand_aggregate['y'], '-', 'Demand aggregate')
+    # plt.plot(demand_aggregate['x'], demand_aggregate['y'], linestyle='-', label='Demand aggregate')
+    # plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
+    # plt.pause(PLOT_PAUSE_TIME)
 
     g_agg_len = len(generator_aggregate['x'])
     g_agg_len -= 1
@@ -348,9 +358,10 @@ def main():
     equillibrium_plotter['x'].append(market_clearing_quantity)
     equillibrium_plotter['y'].append(0)
 
-    plt.plot(equillibrium_plotter['x'], equillibrium_plotter['y'], linestyle='--', label='Market Equillibrium')
-    plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-    plt.pause(PLOT_PAUSE_TIME)
+    plotter(equillibrium_plotter['x'], equillibrium_plotter['y'], '--', 'Market Equillibrium')
+    # plt.plot(equillibrium_plotter['x'], equillibrium_plotter['y'], linestyle='--', label='Market Equillibrium')
+    # plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
+    # plt.pause(PLOT_PAUSE_TIME)
 
     # Show the Market Equillibrium Point on the figure
     plt.text(market_clearing_quantity, market_clearing_price+0.5,
@@ -462,7 +473,7 @@ def main():
             except AttributeError:
                 cost = fuel_cost_funcs[i]
             print(f"    D{i+1} = {cost:.2f} $/h\n")
-        print(f"    P{i+1} = {cleared_values['dem']['x'][i]:.2f} MW")
+        print(f"    L{i+1} = {cleared_values['dem']['x'][i]:.2f} MW")
 
     plt.xlabel('Power (MW)')
     plt.ylabel('Incremental Cost ($/MWh)')
