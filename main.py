@@ -40,7 +40,7 @@ def find_line_intercept(x1, x2, y1, y2, y):
 def plotter(x_points, y_points, linestyle, label):
     plt.plot(x_points, y_points, linestyle=linestyle, label=label)
     plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-    plt.pause(PLOT_PAUSE_TIME)
+    # plt.pause(PLOT_PAUSE_TIME)
 
 
 def main():
@@ -185,16 +185,10 @@ def main():
     for i in range(plants):
         y_values['fuel'][i].append(max_cost)
         plotter(x_values['fuel'][i], y_values['fuel'][i], '-.', f'Generator{i+1}')
-        # plt.plot(x_values['fuel'][i], y_values['fuel'][i], linestyle='-.', label=f'Generator{i+1}')
-        # plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-        # plt.pause(PLOT_PAUSE_TIME)
     
     # Plotting each Incremental Load Cost
     for i in range(loads):
         plotter(x_values['demand'][i], y_values['demand'][i], '-.', f'Demand{i+1}')
-        # plt.plot(x_values['demand'][i], y_values['demand'][i], linestyle='-.', label=f'Demand{i+1}')
-        # plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-        # plt.pause(PLOT_PAUSE_TIME)
     
     if func_or_points == '2':
         print('All input values:')
@@ -251,9 +245,6 @@ def main():
 
     
     plotter(generator_aggregate['x'], generator_aggregate['y'], '-', 'Generator aggregate')
-    # plt.plot(generator_aggregate['x'], generator_aggregate['y'], linestyle='-', label='Generator aggregate')
-    # plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-    # plt.pause(PLOT_PAUSE_TIME)
     
     # The demand aggregate curve
     breaking_points.clear()
@@ -300,9 +291,6 @@ def main():
         demand_aggregate['x'].insert(0, 0)
 
     plotter(demand_aggregate['x'], demand_aggregate['y'], '-', 'Demand aggregate')
-    # plt.plot(demand_aggregate['x'], demand_aggregate['y'], linestyle='-', label='Demand aggregate')
-    # plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-    # plt.pause(PLOT_PAUSE_TIME)
 
     g_agg_len = len(generator_aggregate['x'])
     g_agg_len -= 1
@@ -359,9 +347,6 @@ def main():
     equillibrium_plotter['y'].append(0)
 
     plotter(equillibrium_plotter['x'], equillibrium_plotter['y'], '--', 'Market Equillibrium')
-    # plt.plot(equillibrium_plotter['x'], equillibrium_plotter['y'], linestyle='--', label='Market Equillibrium')
-    # plt.legend(bbox_to_anchor=(0, 1.12), ncol=6, loc='upper left', prop={'size':10})
-    # plt.pause(PLOT_PAUSE_TIME)
 
     # Show the Market Equillibrium Point on the figure
     plt.text(market_clearing_quantity, market_clearing_price+0.5,
@@ -442,17 +427,6 @@ def main():
                         cleared_values['dem']['y'].append(market_clearing_price)
                     break
 
-    # for i in range(plants):
-    #     plt.text(cleared_values['gen']['x'][i], cleared_values['gen']['y'][i]+0.5,
-    #              f"({cleared_values['gen']['x'][i]:.1f}, {cleared_values['gen']['y'][i]:.1f})",
-    #              weight='bold'
-    #             )
-    
-    # for i in range(loads):
-    #     plt.text(cleared_values['dem']['x'][i], cleared_values['dem']['y'][i]+0.5,
-    #              f"({cleared_values['dem']['x'][i]:.1f}, {cleared_values['dem']['y'][i]:.1f})",
-    #              weight='bold'
-    #             )
 
     print('\n\nAll Market Cleared Values and Costs')
     print('Supply:')
