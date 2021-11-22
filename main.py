@@ -23,6 +23,8 @@ def clr_screen():
     elif USER == 'Windows':
         r = os.system('cls')
 
+plt.style.use('dark_background')
+
 
 def check_inf(num):             # An infinite value is not possible
     if num == INFINITY:
@@ -428,7 +430,10 @@ def main():
                     break
 
 
-    print('\n\nAll Market Cleared Values and Costs')
+    print('\n\nAll Market Cleared Values')
+    print('\nMarket Equillibrium points: ')
+    print(f'Market Clearing Quantity = {market_clearing_quantity:.2f} MW')
+    print(f'Market Clearing Price = {market_clearing_price:.2f} $/MWh\n')
     print('Supply:\n')
     for i in range(plants):
         if func_or_points == '1':
@@ -439,7 +444,7 @@ def main():
             print(f"    C{i+1} = {cost:.2f} $/h")
         print(f"    P{i+1} = {cleared_values['gen']['x'][i]:.2f} MW\n")
 
-    print('Demand:\n')
+    print('Demand:')
     for i in range(loads):
         if func_or_points == '1':
             try:
