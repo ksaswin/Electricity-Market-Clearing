@@ -47,7 +47,7 @@ def main():
     valid_choice = 0
     func_or_points = '1'
     print('Would you like to give the inputs as functions or as x & y coordinates?')
-    print('  (1)  Fuel cost functions\n  (2)  Data points\nPlease choose between 1 & 2.')
+    print('  (1)  Cost functions\n  (2)  Data points\nPlease choose between 1 & 2.')
     while (not valid_choice):
         func_or_points = input('Enter your choice here: ')
 
@@ -429,25 +429,25 @@ def main():
 
 
     print('\n\nAll Market Cleared Values and Costs')
-    print('Supply:')
+    print('Supply:\n')
     for i in range(plants):
         if func_or_points == '1':
             try:
                 cost = fuel_cost_funcs[i].subs(x, cleared_values['gen']['x'][i])
             except AttributeError:
                 cost = fuel_cost_funcs[i]
-            print(f"    C{i+1} = {cost:.2f} $/h\n")
-        print(f"    P{i+1} = {cleared_values['gen']['x'][i]:.2f} MW")
+            print(f"    C{i+1} = {cost:.2f} $/h")
+        print(f"    P{i+1} = {cleared_values['gen']['x'][i]:.2f} MW\n")
 
-    print('Demand:')
+    print('Demand:\n')
     for i in range(loads):
         if func_or_points == '1':
             try:
                 cost = demand_cost_funcs[i].subs(x, cleared_values['dem']['x'][i])
             except AttributeError:
                 cost = fuel_cost_funcs[i]
-            print(f"    D{i+1} = {cost:.2f} $/h\n")
-        print(f"    L{i+1} = {cleared_values['dem']['x'][i]:.2f} MW")
+            print(f"    D{i+1} = {cost:.2f} $/h")
+        print(f"    L{i+1} = {cleared_values['dem']['x'][i]:.2f} MW\n")
 
     plt.xlabel('Power (MW)')
     plt.ylabel('Incremental Cost ($/MWh)')
